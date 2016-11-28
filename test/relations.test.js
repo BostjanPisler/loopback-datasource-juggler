@@ -770,7 +770,15 @@ describe('relations', function() {
         });
       });
       context('with filter include', function() {
-
+        it('returns physicians inluced in patient', function(done) {
+          var includeFilter = {include: 'physicians'};
+          physician.patients(includeFilter, function(err, ch) {
+            should.not.exist(err);
+            ch.should.have.lengthOf(3);
+            should.exist(ch[0].physicians);
+            done();
+          });
+        });
       });
       context('with filter where', function() {
         it('returns patient where id equal to samplePatientId', function(done) {
