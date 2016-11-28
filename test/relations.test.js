@@ -6,6 +6,7 @@
 // This test written in mocha+should.js
 'use strict';
 var should = require('./init.js');
+var assert = require('assert');
 var jdb = require('../');
 var DataSource = jdb.DataSource;
 var createPromiseCallback = require('../lib/utils.js').createPromiseCallback;
@@ -772,7 +773,32 @@ describe('relations', function() {
 
       });
       context('with filter where', function() {
-
+        it('returns patient where id equal to samplePatientId', function(done) {
+          var whereFilter = {where: {id: samplePatientId}};
+          physician.patients(whereFilter, function(err, ch) {
+            should.not.exist(err);
+            should.exist(ch);
+            ch.should.have.lengthOf(1);
+            ch[0].id.should.eql(samplePatientId);
+            done();
+          });
+        });
+        it('returns patients where id in an array', function(done) {
+          var idArr = [];
+          var whereFilter;
+          physician.patients.create({name: 'b'}, function(err, p) {
+            idArr.push(samplePatientId, p.id);
+            whereFilter = {where: {id: {inq: idArr}}};
+            physician.patients(whereFilter, function(err, ch) {
+              should.not.exist(err);
+              should.exist(ch);
+              ch.should.have.lengthOf(2);
+              var resultIdArr = [ch[0].id, ch[1].id];
+              assert.deepEqual(resultIdArr, idArr);
+              done();
+            });
+          });
+        });
       });
       function createSampleData(done) {
         Physician.create(function(err, result) {
