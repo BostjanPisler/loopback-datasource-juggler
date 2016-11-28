@@ -808,6 +808,36 @@ describe('relations', function() {
           });
         });
       });
+      context('findById with filter include', function() {
+        it('returns patient where id equal to \'samplePatientId\'' +
+          'with included physicians', function(done) {
+          var includeFilter = {include: 'physicians'};
+          physician.patients.findById(samplePatientId,
+            includeFilter, function(err, ch) {
+              should.not.exist(err);
+              should.exist(ch);
+              ch.id.should.eql(samplePatientId);
+              should.exist(ch.physicians);
+              done();
+            });
+        });
+      });
+      context('findById with filter fields', function() {
+        it('returns patient where id equal to \'samplePatientId\'' +
+          'with field \'name\' but not \'age\'', function(done) {
+          var fieldsFilter = {fields: {name: true, age: false}};
+          physician.patients.findById(samplePatientId,
+            fieldsFilter, function(err, ch) {
+              should.not.exist(err);
+              should.exist(ch);
+              should.exist(ch.name);
+              ch.name.should.eql('a');
+              should.not.exist(ch.age);
+              done();
+            });
+        });
+      });
+
       function createSampleData(done) {
         Physician.create(function(err, result) {
           result.patients.create({name: 'a', age: '10'}, function(err, p) {
